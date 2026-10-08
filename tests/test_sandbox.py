@@ -36,3 +36,9 @@ def test_root_file_system_is_read_only_but_workspace_is_writable(tmp_path, monke
 
 def test_unknown_language_is_rejected_without_docker():
     assert sandbox_server.sandbox_run("cobol", "DISPLAY 'HI'")["stderr"] == "Unsupported language: cobol"
+
+
+def test_files_written_in_the_sandbox_belong_to_the_host_user(tmp_path, monkeypatch):
+    monkeypatch.setattr(sandbox_server, "WORKSPACE", tmp_path)
+    sandbox_server.sandbox_run("python", "open('made.txt', 'w').write('x')")
+    assert (tmp_path / "made.txt").stat().st_uid == os.getuid()

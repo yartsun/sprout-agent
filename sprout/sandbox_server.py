@@ -33,8 +33,10 @@ def _cut(text: str) -> str:
 
 def docker_command(name: str, code_dir: str, language: str, timeout: int) -> list[str]:
     _, command = RUNNERS[language]
+    # Run as the host user: the 0700 temp dir stays readable and workspace files stay owned by you (Linux).
+    user = ["--user", f"{os.getuid()}:{os.getgid()}"] if hasattr(os, "getuid") else []
     return [
-        "docker", "run", "--rm", "-i", "--name", name,
+        "docker", "run", "--rm", "-i", "--name", name, *user,
         "--network", "none", "--memory", "512m", "--cpus", "1", "--pids-limit", "256",
         "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
         "--read-only", "--tmpfs", "/tmp:rw,size=64m", "-e", "HOME=/tmp",
