@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "sandbox": {
+      "command": "python",
+      "args": ["-m", "sprout.sandbox_server"]
+    },
+    "time": {
+      "command": "uvx",
+      "args": ["mcp-server-time"]
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "env": { "MEMORY_FILE_PATH": "./workspace/.memory.json" },
+      "disabled": true
+    },
+    "remote-example": {
+      "url": "http://127.0.0.1:9000/mcp",
+      "headers": { "Authorization": "Bearer <token>" },
+      "disabled": true
+    }
+  }
+}

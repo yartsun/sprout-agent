@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: false
+      - run: uv venv && uv pip install -e ".[dev]"
+      - name: Lint
+        run: uv run --no-sync ruff check .
+      - name: Tests
+        run: uv run --no-sync pytest -q
+
+  sandbox:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.12"
+          enable-cache: false
+      - run: uv venv && uv pip install -e ".[dev]"
+      - run: docker build -t sprout-sandbox sandbox
+      - name: Sandbox tests (real containers)
+        run: SANDBOX_TESTS=1 uv run --no-sync pytest -q tests/test_sandbox.py
